@@ -1,0 +1,3 @@
+# Detailed nonlinear iteration log
+# ITER step iter update_inf threshold full_inf raw_l2 omega linear_iters assemble_s solve_s recover_s convergence_s recharge streams wells net_external dry_wells h_min h_max h_mean
+# ACCEPT step iter method history accepted_l2 aa_status m_used max_alpha step_ratio

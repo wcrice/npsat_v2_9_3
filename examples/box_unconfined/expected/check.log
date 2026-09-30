@@ -1,0 +1,8 @@
+PASS  flow.log: Simulation Finished
+PASS  flow.log: NL   4 | dH_inf 5.181e-03 | tol 1.793e-02 | linear    1 | CONVERGED
+PASS  recharge 5.000000e+02 m3/d (5e-4 m/d * 1e6 m2 = 500)
+PASS  net Dirichlet outflow 5.000000e+02 m3/d equals recharge
+PASS  west inflow 1.191088e+03 m3/d (Dupuit 1150, within 5 %)
+PASS  east outflow 1.691088e+03 m3/d (Dupuit 1650, within 5 %)
+PASS  budget discrepancy -4.535e-11 %
+ALL CHECKS PASSED

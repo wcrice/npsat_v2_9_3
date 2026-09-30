@@ -1,0 +1,26 @@
+--> Configuration file: trace.ini
+Rebuilt distributed coarse triangulation from prefix: out/box
+Rank 1: locally owned active cells = 125, global active cells = 500
+Rank 2: locally owned active cells = 125, global active cells = 500
+Loaded parallel triangulation: out/box_dist_tria
+Rank 0: locally owned active cells = 125, global active cells = 500
+Rank 3: locally owned active cells = 125, global active cells = 500
+Built global_bounding_boxes for particle insertion: rank0 has 125 boxes, this rank has 125 boxes.
+Loading velocity IO mapping: out/box_velmap_rank_0000.bin
+	 Done loading velocity IO mapping: out/box_velmap_rank_0000.bin
+Loading cell - well mapping: out/box_cellwell_map_rank_0000.bin
+	 Done loading cell - well mapping: out/box_cellwell_map_rank_0000.bin
+ParticleHandler initialized. Locally owned active cells: 125
+
+============================================================
+  PARTICLE CHUNK ITERATION 0
+  Initial particles: 5
+  Transient time steps per cycle: 1
+============================================================
+  [iteration 0 | elapsed 0 s | cycle 2 | time step 0 (0/1) | active 0/5 | finished 100.0% | exchanges 0]
+------------------------------------------------------------
+  COMPLETED PARTICLE CHUNK ITERATION 0
+  Particles processed: 5
+  Time-step passes: 2
+  Elapsed time: 0 s
+------------------------------------------------------------
