@@ -1,0 +1,136 @@
+--> Configuration file: flow.ini
+=======================================================
+Reading data...
+	Time step...
+	Recharge...
+Recharge data disabled: Sources.Rch_Data is empty.
+	Hydrogeology...
+Stream data disabled: Sources.Stream_Data or Sources.Stream_Rates is empty.
+Wells disabled: Sources.Well_Data is empty.
+wells loaded: 0
+	Dirichlet BC...
+Dirichlet boundary data loaded: 2 entries
+Initial triangulation cells: 500
+Writing Vertices in ./out/box_coarse_tria_vertices.dat
+Writing Cells in ./out/box_coarse_tria_vertices.dat
+Wrote coarse triangulation files:
+  ./out/box_coarse_tria_vertices.dat
+  ./out/box_coarse_tria_cells.dat
+=======================================================
+Refive triangulation...
+Refinement: initial global_active_cells=500
+Saving parallel triangulation: ./out/box_dist_tria (per-rank files)
+Rank 0: locally owned active cells = 125, global active cells = 500
+Rank 2: locally owned active cells = 125, global active cells = 500
+Rank 1: locally owned active cells = 125, global active cells = 500
+Rank 3: locally owned active cells = 125, global active cells = 500
+=======================================================
+Setup system...
+
+Distributing DoFs...
+Number of flux DoFs: 1700
+Number of head DoFs: 500
+Number of trace DoFs: 1700
+Applying trace boundary conditions for input data time step 0 (simulation counter 0)...
+Rank: 2 has 0 cell-well links
+Rank: 3 has 0 cell-well links
+Rank: 1 has 0 cell-well links
+Rank: 0 has 0 cell-well links
+Well DoFs (by segments): n_wells=0, sum(owned)=0 (should equal n_wells), per-rank min=0, max=0
+Block MNW2-HMFEM system setup complete:
+  λ DOFs = 1700
+  Well DOFs (global) = 0
+  Well DOFs (owned here) = 0
+  u DOFs = 1700
+  h DOFs = 500
+Saving velocity IO mapping (once): ./out/box_velmap_rank_0000.bin
+Initial head loaded from ./input/ic.master
+Time-step budget history: ./out/box_time_step_budget_history.csv
+Steady-state mode: solving input stress scenario 0 from IC.Head; transient spin-up is not used.
+
+==============================================
+Simulation counter 0 of 1 (range 0..0)
+Input data time step 0 of 1 (cyclic index; range 0..0)
+Applying trace boundary conditions for input data time step 0 (simulation counter 0)...
+STG   0 | assembly started...
+Assembling system for simulation counter 0, input data time step 0 (steady state)...
+ASM phase: clearing matrices and right-hand sides started
+ASM phase: clearing matrices and right-hand sides finished in 0.00 s
+ASM phase: identifying recharge receiver cells skipped (confined; recharge is applied directly to boundary face 5)
+ASM phase: assembling local cells started
+Assembly progress: 52 / 500 cells (10.4%), elapsed 0.0 s, ETA 0.0 s
+Assembly progress: 100 / 500 cells (20.0%), elapsed 0.0 s, ETA 0.0 s
+Assembly progress: 152 / 500 cells (30.4%), elapsed 0.0 s, ETA 0.0 s
+Assembly progress: 200 / 500 cells (40.0%), elapsed 0.0 s, ETA 0.0 s
+Assembly progress: 252 / 500 cells (50.4%), elapsed 0.0 s, ETA 0.0 s
+Assembly progress: 300 / 500 cells (60.0%), elapsed 0.0 s, ETA 0.0 s
+Assembly progress: 352 / 500 cells (70.4%), elapsed 0.0 s, ETA 0.0 s
+Assembly progress: 400 / 500 cells (80.0%), elapsed 0.0 s, ETA 0.0 s
+Assembly progress: 452 / 500 cells (90.4%), elapsed 0.0 s, ETA 0.0 s
+Assembly progress: 500 / 500 cells (100.0%), elapsed 0.0 s, ETA 0.0 s
+ASM phase: assembling local cells finished in 0.00 s
+ASM phase: exchanging MNW coupling data started
+ASM phase: exchanging MNW coupling data finished in 0.00 s
+ASM phase: reducing global well data started
+ASM phase: reducing global well data finished in 0.00 s
+ASM phase: validating well pumping rates started
+ASM phase: validating well pumping rates finished in 0.00 s
+ASM phase: assembling owned-well right-hand sides started
+ASM phase: assembling owned-well right-hand sides finished in 0.00 s
+ASM phase: reducing assembly budget totals started
+ASM   0 | recharge 0.000000e+00 | streams 0.000000e+00 | pumping 0.000000e+00 | net 0.000000e+00 | dry wells 0
+ASM phase: reducing assembly budget totals finished in 0.00 s
+ASM phase: compressing matrix block (0,0) started
+ASM phase: compressing matrix block (0,0) finished in 0.00 s
+ASM phase: compressing matrix block (0,1) started
+ASM phase: compressing matrix block (0,1) finished in 0.00 s
+ASM phase: compressing matrix block (1,0) started
+ASM phase: compressing matrix block (1,0) finished in 0.00 s
+ASM phase: compressing matrix block (1,1) started
+ASM phase: compressing matrix block (1,1) finished in 0.00 s
+ASM phase: compressing right-hand-side block 0 started
+ASM phase: compressing right-hand-side block 0 finished in 0.00 s
+ASM phase: compressing right-hand-side block 1 started
+ASM phase: compressing right-hand-side block 1 finished in 0.00 s
+STG   0 | assembly 0.01 s | solver started...
+Solving global system ...
+   Schur system (Lambda) converged in 1 iterations.
+STG   0 | solver 0.01 s (1 iters) | head recovery started...
+Recovering heads from trace solution...
+  Head range: [61, 79] m, Mean: 70 m
+  Head update L2 norm = 1.3e+02
+STG   0 | head recovery 0.00 s | convergence check started...
+Recovering fluxes from trace and head solutions...
+
+========== Accepted time-step budget ==========
+  Recharge                      : 0.00e+00 volume/time
+  Streams                       : 0.00e+00 volume/time
+  Wells (applied)               : 0.00e+00 volume/time
+  Storage volume change         : 0.00e+00 volume
+  Storage rate                  : 0.00e+00 volume/time
+  Dirichlet inflow              : 2.00e+03 volume/time
+  Dirichlet outflow             : 2.00e+03 volume/time
+  Dirichlet net outflow         : 2.43e-09 volume/time
+  Complete budget inflow        : 2.00e+03 volume/time
+  Complete budget outflow       : 2.00e+03 volume/time
+  Residual (inflow-outflow)     : -2.43e-09 volume/time
+  Percent discrepancy           : -1.22e-10 %
+  Dry wells                     : 0
+===============================================
+	 write_well_exchange_identity_csv_mpi...
+	 Write wellbore segments as csv
+	 Writing CELL-based results for input data time step 0 (simulation counter 0)...
+	 export_cell_well_map_binary_once...
+	 save_water_table_per_step...
+	 save_velocity_per_step...
+Finished-simulation checkpoint saved at step 1
+Completed simulation counter 0 (input data time step 0)
+  Wall time: 0.053 s = 0.001 min = 0.000 h
+Simulation Finished
+
+===============================================
+Total executable wall time
+  30.579 s
+  0.510 min
+  0.008 h
+===============================================

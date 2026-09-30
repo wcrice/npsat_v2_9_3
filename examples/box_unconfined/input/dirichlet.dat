@@ -1,0 +1,7 @@
+2
+EDGE 2 head_west.master
+-5 50
+5 950
+EDGE 2 head_east.master
+995 50
+1005 950

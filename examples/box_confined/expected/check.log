@@ -1,0 +1,13 @@
+PASS  flow.log: Simulation Finished
+PASS  flow.log: Schur system (Lambda) converged in 1 iterations.
+PASS  cell_budget: 500 cells
+PASS  max |head - analytic| = 0.000e+00 m
+PASS  Dirichlet inflow 2.000000e+03 m3/d (analytic 2000)
+PASS  budget discrepancy -1.216e-10 %
+PASS  streamlines: 5 particles traced
+PASS  particle Eid,Sid=1 1: straight +x path to the east boundary at 0.0666667 m/d
+PASS  particle Eid,Sid=1 2: straight +x path to the east boundary at 0.0666667 m/d
+PASS  particle Eid,Sid=1 3: straight +x path to the east boundary at 0.0666667 m/d
+PASS  particle Eid,Sid=1 4: straight +x path to the east boundary at 0.0666667 m/d
+PASS  particle Eid,Sid=1 5: straight +x path to the east boundary at 0.0666667 m/d
+ALL CHECKS PASSED

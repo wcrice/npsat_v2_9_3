@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NPSAT v2</title>
+<style>
+  body { font-family: sans-serif; margin: 16px; max-width: 1100px; }
+  textarea { width: 100%; box-sizing: border-box; font-family: monospace; font-size: 12px; }
+  pre { background: #f4f4f4; border: 1px solid #ccc; padding: 8px; max-height: 360px; overflow: auto; font-size: 12px; }
+  td, th { text-align: left; padding: 1px 12px 1px 0; font-size: 13px; }
+  .failed { color: #b00020; font-weight: bold; }
+  .succeeded { color: #1b5e20; font-weight: bold; }
+  .cols { display: flex; gap: 16px; flex-wrap: wrap; }
+  .cols > div { flex: 1 1 400px; }
+</style>
+</head>
+<body>
+<h1>NPSAT v2</h1>
+
+<h2>Configuration</h2>
+<p>
+  <label>Case <select id="case"></select></label>
+  <label>MPI ranks <input id="np" type="number" min="1" value="4" style="width:4em"></label>
+  <button id="start">Start run</button>
+</p>
+<div class="cols">
+  <div><label for="flow">flow.ini (npsat_v2)</label><textarea id="flow" rows="34" spellcheck="false"></textarea></div>
+  <div><label for="trace">trace.ini (npsat_trace; empty: no particle tracing)</label><textarea id="trace" rows="34" spellcheck="false"></textarea></div>
+</div>
+<p id="note"></p>
+
+<h2>Run</h2>
+<p><label>Run <select id="runs"></select></label></p>
+<p id="status">No run selected.</p>
+
+<h3>npsat_v2 output</h3>
+<pre id="flowlog"></pre>
+<div id="tracebox" hidden><h3>npsat_trace output</h3><pre id="tracelog"></pre></div>
+
+<h2>Plots</h2>
+<div id="plots"></div>
+
+<h2>Output files</h2>
+<table id="files"></table>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+let current = null, timer = null, plotted = null;
+
+async function api(path, options) {
+  const r = await fetch(path, options);
+  const body = await r.json();
+  if (!r.ok) throw new Error(body.error || r.statusText);
+  return body;
+}
+
+async function loadCase() {
+  const c = await api('/api/cases/' + encodeURIComponent($('case').value));
+  $('flow').value = c.flow_ini;
+  $('trace').value = c.trace_ini;
+}
+
+async function refreshRuns(select) {
+  const cfg = await api('/api/config');
+  $('runs').innerHTML = '<option value="">-</option>' + cfg.runs.map(r =>
+    `<option value="${esc(r.id)}">${esc(r.id)} (${esc(r.state)})</option>`).join('');
+  if (select) $('runs').value = select;
+}
+
+async function init() {
+  const cfg = await api('/api/config');
+  $('np').value = cfg.np;
+  $('case').innerHTML = cfg.cases.map(c => `<option>${esc(c)}</option>`).join('');
+  if (cfg.cases.length) await loadCase();
+  else $('note').textContent = 'No case directory with a flow.ini was found.';
+  await refreshRuns();
+  if (cfg.runs.length) { $('runs').value = cfg.runs[0].id; watch(cfg.runs[0].id); }
+}
+
+async function startRun() {
+  $('note').textContent = '';
+  try {
+    const r = await api('/api/runs', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({case: $('case').value, flow_ini: $('flow').value, trace_ini: $('trace').value, np: +$('np').value})});
+    await refreshRuns(r.id);
+    watch(r.id);
+  } catch (e) { $('note').textContent = 'Run not started: ' + e.message; }
+}
+
+function watch(id) {
+  clearTimeout(timer);
+  current = id; plotted = null;
+  $('plots').innerHTML = '';
+  poll();
+}
+
+async function poll() {
+  if (!current) return;
+  const id = current;
+  let info;
+  try { info = await api('/api/runs/' + id); }
+  catch (e) { $('status').textContent = e.message; return; }
+  if (id !== current) return;
+  const cls = info.state;
+  $('status').innerHTML = `<b>${esc(info.id)}</b>: <span class="${esc(cls)}">${esc(info.state)}</span>` +
+    (info.state === 'running' ? ` (${info.phase}, ${info.elapsed.toFixed(0)} s)` : ` (${info.elapsed.toFixed(1)} s)`) +
+    (info.message ? `<br><span class="failed" id="message"></span>` : '');
+  if (info.message) $('message').textContent = info.message;
+  $('flowlog').textContent = info.logs.flow;
+  $('tracebox').hidden = !info.logs.trace;
+  $('tracelog').textContent = info.logs.trace;
+  $('files').innerHTML = '<tr><th>File</th><th>Bytes</th></tr>' + info.files.map(f =>
+    `<tr><td><a href="/files/${encodeURIComponent(id)}/${f.path.split('/').map(encodeURIComponent).join('/')}">${esc(f.path)}</a></td><td>${f.size}</td></tr>`).join('');
+  if (info.state === 'running') timer = setTimeout(poll, 1000);
+  else if (plotted !== id) { plotted = id; drawPlots(id); refreshRuns(id); }
+}
+
+async function drawPlots(id) {
+  const box = $('plots');
+  box.innerHTML = '';
+  for (const [name, title] of [['head.svg', 'Solved head'], ['paths.svg', 'Particle paths']]) {
+    const div = document.createElement('div');
+    div.innerHTML = `<h3>${title}</h3>`;
+    box.appendChild(div);
+    const r = await fetch(`/api/runs/${id}/plot/${name}`);
+    const holder = document.createElement('div');
+    if (r.ok) holder.innerHTML = await r.text();
+    else holder.textContent = (await r.json()).error;
+    div.appendChild(holder);
+  }
+}
+
+$('case').addEventListener('change', loadCase);
+$('start').addEventListener('click', startRun);
+$('runs').addEventListener('change', () => { if ($('runs').value) watch($('runs').value); });
+init().catch(e => { $('note').textContent = e.message; });
+</script>
+</body>
+</html>
