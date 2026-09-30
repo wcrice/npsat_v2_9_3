@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>
 #include <fstream>
+#include <sys/stat.h>
 
 #include "flow_structures.h"
 
