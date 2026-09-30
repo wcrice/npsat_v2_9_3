@@ -56,15 +56,17 @@ The exit status is non-zero when a step, a check or a comparison fails. Output i
 |---|---|
 | `container/run.sh test` | Build if needed, run the examples and their checks (default) |
 | `container/run.sh build` | Build the image |
-| `container/run.sh gui` | Serve the GUI on `http://127.0.0.1:8765/` |
+| `container/run.sh gui` | Serve the GUI on `http://127.0.0.1:8765/` until interrupted |
+| `container/run.sh serve` | As `gui`, detached and restarted by the container runtime; `container/run.sh stop` removes it |
 | `container/run.sh shell` | Shell in the image, with the executables in `PATH` |
 
 Settings are environment variables (`NPSAT_RUNTIME`, `NPSAT_IMAGE`, `NPSAT_RUNS`, `NPSAT_NP`,
-`NPSAT_GUI_PORT`, `NPSAT_CASES`, `NPSAT_JOBS`, `NPSAT_NO_CACHE`), documented at the top of
-`container/run.sh`.
+`NPSAT_GUI_PORT`, `NPSAT_GUI_BIND`, `NPSAT_GUI_HOSTS`, `NPSAT_CONTAINER_NAME`, `NPSAT_CASES`,
+`NPSAT_JOBS`, `NPSAT_NO_CACHE`), documented at the top of `container/run.sh`.
 
 The Dockerfile uses no BuildKit-specific syntax and the launcher needs no compose file. The
-container runs as the invoking user, and the GUI port is published on `127.0.0.1` only.
+container runs as the invoking user, and the GUI port is published on `127.0.0.1` unless
+`NPSAT_GUI_BIND` names another address (see "Serving the GUI on a network address").
 
 Tested runtimes (Ubuntu 24.04 hosts, x86-64):
 
@@ -126,9 +128,35 @@ configuration of a case, starts `npsat_v2` and, when a trace configuration is pr
 exits non-zero or does not print its completion line, lists the output files for download, and
 draws two static plots: head at the cell centres (plan view and a section, from the cell-centre
 VTK files) and the traced particle paths (from the ordered streamline files). Output is written to
-`runs/gui-<time>-<case>/`. Extra cases are listed from the directory given in `NPSAT_CASES`
-(same layout as `examples/`). The server has no authentication and is reachable from the host's
-loopback interface only.
+`runs/gui-<time>-<case>/`. The page opens on the most recent run of the output directory, and a
+run can be selected from the list. Extra cases are listed from the directory given in
+`NPSAT_CASES` (same layout as `examples/`). The server has no authentication.
+
+### Serving the GUI on a network address
+
+`container/run.sh serve` starts the GUI detached, as a container named `$NPSAT_CONTAINER_NAME`
+with the restart policy `unless-stopped`, publishing the GUI port on `$NPSAT_GUI_BIND`. The GUI
+refuses a request whose `Host` header names a host that is not in `NPSAT_GUI_HOSTS` (besides
+`localhost`, `127.0.0.1` and `::1`), so the name used in the URL must be listed.
+
+```bash
+NPSAT_GUI_BIND=192.0.2.10 NPSAT_GUI_PORT=8120 NPSAT_GUI_HOSTS=npsat.example.net,192.0.2.10 \
+NPSAT_RUNS=/var/tmp/npsat-runs container/run.sh serve
+# http://npsat.example.net:8120/
+container/run.sh stop
+```
+
+`NPSAT_GUI_BIND` is the address of a host interface and `NPSAT_RUNS` should be on a local disk.
+Anything that can reach that address can start runs as the invoking user, edit the configuration
+text that those runs use, and read the run output. Serve only on a network whose hosts are all
+trusted. To show a finished run on arrival, start the two examples once through the page or with
+
+```bash
+curl -s -X POST -H 'Content-Type: application/json' http://npsat.example.net:8120/api/runs \
+  -d "$(python3 -c 'import json,sys; print(json.dumps({"case": "box_confined", "flow_ini": open("examples/box_confined/flow.ini").read(), "trace_ini": open("examples/box_confined/trace.ini").read(), "np": 4}))')"
+```
+
+A second request is refused with status 409 while a run is active.
 
 ## Examples
 

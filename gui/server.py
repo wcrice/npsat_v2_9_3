@@ -12,9 +12,13 @@ Settings (environment):
   NPSAT_NP         default MPI rank count offered by the page                default 4
   NPSAT_GUI_HOST   bind address                                              default 0.0.0.0
   NPSAT_GUI_PORT   bind port                                                 default 8765
+  NPSAT_GUI_HOSTS  comma-separated host names, besides localhost, 127.0.0.1 and ::1, that
+                   requests may use in their Host header                     default none
 
 The server has no authentication. Inside the container it binds 0.0.0.0 so that the published
-port reaches it; container/run.sh publishes that port on 127.0.0.1 only.
+port reaches it; container/run.sh publishes that port on 127.0.0.1 unless NPSAT_GUI_BIND names
+another address. Requests whose Host header names a host that is not allowed are refused, which
+guards against DNS rebinding.
 """
 import glob
 import json
@@ -37,6 +41,7 @@ RUNS = Path(os.environ.get("NPSAT_RUNS", "/runs"))
 DEFAULT_NP = int(os.environ.get("NPSAT_NP", "4"))
 HOST = os.environ.get("NPSAT_GUI_HOST", "0.0.0.0")
 PORT = int(os.environ.get("NPSAT_GUI_PORT", "8765"))
+ALLOWED_HOSTS = {"127.0.0.1", "localhost", "::1"} | {h.strip().lower() for h in os.environ.get("NPSAT_GUI_HOSTS", "").split(",") if h.strip()}
 
 NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
 STATE_FILE = ".gui-state.json"
@@ -399,9 +404,9 @@ class Handler(BaseHTTPRequestHandler):
         self.json({"error": message}, code)
 
     def host_ok(self):
-        # Refuses requests whose Host header is not a loopback name (DNS rebinding).
-        host = (self.headers.get("Host") or "").rsplit(":", 1)[0].strip("[]")
-        return host in ("127.0.0.1", "localhost", "::1")
+        # Refuses requests whose Host header names a host that is not allowed (DNS rebinding).
+        host = (self.headers.get("Host") or "").rsplit(":", 1)[0].strip("[]").lower()
+        return host in ALLOWED_HOSTS
 
     def do_GET(self):
         if not self.host_ok():

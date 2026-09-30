@@ -76,6 +76,7 @@ async function init() {
   if (cfg.cases.length) await loadCase();
   else $('note').textContent = 'No case directory with a flow.ini was found.';
   await refreshRuns();
+  if (cfg.runs.length) { $('runs').value = cfg.runs[0].id; watch(cfg.runs[0].id); }
 }
 
 async function startRun() {
