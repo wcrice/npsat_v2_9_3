@@ -67,3 +67,11 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Run output
+runs/
+examples/*/out/
+examples/*/trace/
+!examples/*/expected/*.log
+!examples/*/expected/out/*.log
+__pycache__/

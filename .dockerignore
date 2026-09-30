@@ -1,0 +1,13 @@
+# The build context is the repository root; only what the image uses is sent.
+*
+!CMakeLists.txt
+!npsat_v2.cpp
+!npsat_trace.cpp
+!npsat_flow
+!npsat_trace
+!gui
+!examples
+# Output written into an example directory by a native run.
+examples/*/out
+examples/*/trace
+examples/*/*.log
